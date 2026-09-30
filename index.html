@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Orario Scolastico - I.C. Sinopoli - Ferrini</title>
+    <style>
+        body { font-family: 'Segoe UI', -apple-system, sans-serif; background-color: #f4f6f9; color: #333; margin: 0; padding: 12px; }
+        .container { max-width: 1250px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .school-name { text-align: center; color: #0056b3; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; font-size: 0.95em; margin-bottom: 5px; }
+        h1 { color: #222; text-align: center; margin-top: 0; margin-bottom: 5px; font-size: 1.6em; }
+        .subtitle { text-align: center; color: #6c757d; margin-bottom: 20px; font-size: 0.95em; }
+        .selector-box { display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 20px; background: #e9ecef; padding: 12px; border-radius: 6px; flex-wrap: wrap; }
+        select { padding: 10px 12px; font-size: 1em; border-radius: 4px; border: 1px solid #ccc; cursor: pointer; background-color: white; min-width: 140px; text-align: center; }
+        .nav-btn { padding: 10px 14px; font-size: 0.95em; font-weight: bold; border-radius: 4px; border: 1px solid #0056b3; background-color: #0056b3; color: white; cursor: pointer; white-space: nowrap; }
+        .nav-btn:hover { background-color: #004085; }
+        .print-btn { padding: 10px 14px; font-size: 0.95em; font-weight: bold; border-radius: 4px; border: 1px solid #28a745; background-color: #28a745; color: white; cursor: pointer; white-space: nowrap; display: none; }
+        .print-btn:hover { background-color: #218838; }
+        .nav-btn:disabled { background-color: #cccccc; border-color: #cccccc; cursor: not-allowed; }
+        .table-responsive { overflow-x: auto; width: 100%; -webkit-overflow-scrolling: touch; border: 1px solid #dee2e6; border-radius: 4px; }
+        table { width: 100%; border-collapse: collapse; display: none; table-layout: fixed; min-width: 650px; }
+        th, td { border: 1px solid #dee2e6; padding: 12px 6px; text-align: center; vertical-align: middle; width: 18%; word-wrap: break-word; font-size: 0.9em; }
+        th:first-child, td:first-child { width: 10%; font-weight: bold; background-color: #f8f9fa !important; color: #333 !important; }
+        th { background-color: #0056b3; color: white; font-weight: 600; font-size: 0.95em; }
+        .cell-content { display: flex; flex-direction: column; gap: 3px; }
+        .materia { font-weight: bold; color: #111; text-transform: uppercase; font-size: 0.95em; line-height: 1.1; }
+        .docente { font-style: italic; color: #444; font-size: 0.82em; text-transform: uppercase; line-height: 1.1; }
+        .empty-msg { text-align: center; color: #6c757d; font-style: italic; padding: 20px; font-size: 1em; }
+        
+        /* CLASSI DI COLORAZIONE PASTELLO PER MATERIA */
+        .color-matematica { background-color: #e3f2fd !important; } /* Azzurro */
+        .color-letterestoria { background-color: #e8f5e9 !important; } /* Verde */
+        .color-letstogeo { background-color: #f1f8e9 !important; } /* Verde Chiaro */
+        .color-storiageo { background-color: #e0f2f1 !important; } /* Acqua */
+        .color-geografia { background-color: #e0f7fa !important; } /* Turchese */
+        .color-inglese { background-color: #fff3e0 !important; } /* Arancione */
+        .color-francese { background-color: #f3e5f5 !important; } /* Viola */
+        .color-tecnologia { background-color: #efebe9 !important; } /* Grigio/Marrone */
+        .color-musica { background-color: #fffde7 !important; } /* Giallo */
+        .color-arte { background-color: #fce4ec !important; } /* Rosa */
+        .color-fisica { background-color: #f1f1f1 !important; } /* Grigio Chiaro */
+        .color-religione { background-color: #fff8e1 !important; } /* Crema */
+
+        @media (max-width: 600px) {
+            body { padding: 8px; } .container { padding: 12px; } h1 { font-size: 1.3em; }
+            .subtitle { margin-bottom: 15px; font-size: 0.85em; } .selector-box { padding: 8px; gap: 6px; }
+            select, .nav-btn, .print-btn { padding: 8px 10px; font-size: 0.85em; } th, td { padding: 8px 4px; font-size: 0.85em; }
+            .materia { font-size: 0.88em; } .docente { font-size: 0.78em; }
+        }
+
+        @media print {
+            body { background-color: white; color: #000; padding: 0; margin: 0; }
+            .container { box-shadow: none; padding: 0; max-width: 100%; }
+            .subtitle, .selector-box, #messaggioIniziale { display: none !important; }
+            .school-name { text-align: left; font-size: 11pt; color: #000; margin-bottom: 2px; }
+            h1 { font-size: 20pt; margin-bottom: 25px; color: #000; text-align: left; }
+            .table-responsive { border: none; overflow: visible; width: 100%; }
+            table { display: table !important; width: 100% !important; table-layout: fixed !important; min-width: 100% !important; page-break-inside: avoid; }
+            th, td { border: 1px solid #000 !important; padding: 10pt 5pt !important; font-size: 10pt !important; color: #000 !important; }
+            th { background-color: #e0e0e0 !important; color: #000 !important; }
+            /* Mantiene i colori pastello anche in stampa */
+            td { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .materia { font-size: 10pt !important; } .docente { font-size: 0.85em !important; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="school-name">I.C. Sinopoli - Ferrini</div>
+    <h1 id="titoloPagina">Orario Scolastico</h1>
+    <p class="subtitle">Scegli la classe. La griglia a colori si adatta a smartphone e fogli di stampa A4.</p>
+    <div class="selector-box">
+        <button id="btnPrev" class="nav-btn" onclick="navigaClasse(-1)">◀ Prec.</button>
+        <select id="classeSelect" onchange="mostraOrario()"><option value="">-- Classe --</option></select>
+        <button id="btnNext" class="nav-btn" onclick="navigaClasse(1)">Succ. ▶</button>
+        <button id="btnPrint" class="print-btn" onclick="window.print()">🖨️ Stampa Orario</button>
+    </div>
+    <div class="table-responsive">
+        <table id="tabellaOrario">
+            <thead><tr><th>Ora</th><th>Lunedì</th><th>Martedì</th><th>Mercoledì</th><th>Giovedì</th><th>Venerdì</th></tr></thead>
+            <tbody id="corpoTabella"></tbody>
+        </table>
+        <p id="messaggioIniziale" class="empty-msg">Seleziona una classe dal menu in alto per generare la griglia oraria completa.</p>
+    </div>
+</div>
+<script>
+    const classiIstituito = ["1A","2A","3A","1B","2B","3B","1C","2C","3C","1D","2D","3D","1E","2E","3E","1F","2F","3F","1G","2G","3G","1H","3H","1I","2I","3I","1L"];
+    const databaseDocenti = [
+        // Lunedì (Ore 1-6)
+        ["PONZO","MERCURIO","DI MARCO","COSTACURTA","ORLANDI","MAIORANA","CALDAROLA","DELL'OMO","SERVELLO S","VALENTINI","GURRIERI","CECILIA","CERCIELLO","DI CASTRO","ANTICI","CESARO'","DELLA PIETRA","MUSTILLI","SERVELLO A","FERRINI","APPOLLONI","GENTILE","FERRERI","FODALE","PREGER","PACE","VACCA TORELLI"],
+        ["MERCURIO","ORLANDI","DI MARCO","PONZO","VACCA TORELLI","MAIORANA","ANTICI","CALDAROLA","DELL'OMO","GURRIERI","PACE","CECILIA","DI CASTRO","SERVELLO S","CESARO'","CARNEVALI","COSTACURTA","TORNISELLO","APPOLLONI","SERVELLO A","FERRINI","FERRERI","DELLA PIETRA","GENTILE","MICALETTI","PREGER","FODALE"],
+        ["NESPOLA","CERCIELLO","PIZZUTI","PONZO","ANTICI","FARINA","CALDAROLA","CECCACCIO","DELL'OMO","GURRIERI","CECILIA","DAIDONE","FERRERI","SERVELLO S","ORLANDI","CARNEVALI","CESARO'","COSTACURTA","ALCINI","SERVELLO A","FERRINI","VACCA TORELLI","MUSTILLI","PREGER","PIERSANTI","VALENTINI","VINCI"],
+        ["CERCIELLO","CARNEVALI","PIZZUTI","PONZO","DE MARCO","FARINA","NESPOLA","DELL'OMO","SURACE","MERCURIO","CORPOLONGO","VALENTINI","VINCI","SERVELLO S","PERSIANI","FODALE","DE BELLA","TORNISELLO","ALCINI","CECCACCIO","DI MARCO","DELLA PIETRA","MUSTILLI","PACE","PIERSANTI","MICALETTI","GENTILE"],
+        ["PIZZUTI","DE MARCO","CORPOLONGO","SURACE","FARINA","ANTICI","CECCACCIO","NESPOLA","PERSIANI","MARI","MERCURIO","PACE","VINCI","CERCIELLO","IANNITTI","DE BELLA","DELLA PIETRA","CESARO'","VALENTINI","ALCINI","GENTILE","PIERSANTI","FODALE","SERVELLO A","PREGER","MICALETTI","TORNISELLO"],
+        ["DAIDONE","PIZZUTI","MERCURIO","DE MARCO","FARINA","NESPOLA","DELL'OMO","SURACE","CECCACCIO","CORPOLONGO","VALENTINI","MARI","ANTICI","CESARO'","PERSIANI","TORNISELLO","DE BELLA","CARNEVALI","IANNITTI","GENTILE","ALCINI","PIERSANTI","DELLA PIETRA","PREGER","FODALE","MICALETTI","VINCI"],
+        // Martedì (Ore 1-6)
+        ["CECCACCIO","CARNEVALI","DE MARCO","ORLANDI","MAIORANA","VACCA TORELLI","SERVELLO S","DELL'OMO","BOLOGNA","DAIDONE","SPINA","GURRIERI","CESARO'","DI CASTRO","PERSIANI","TORNISELLO","DE BELLA","FODALE","SERVELLO A","CECILIA","ALCINI","SURACE","MUSTILLI","PREGER","APPOLLONI","FERRINI","VINCI"],
+        ["DAIDONE","CARNEVALI","CECCACCIO","ANTICI","SURACE","MAIORANA","DELL'OMO","DE MARCO","ORLANDI","MERCURIO","GURRIERI","IANNITTI","COSTACURTA","SERVELLO S","PERSIANI","TORNISELLO","DE BELLA","CESARO'","CECILIA","SERVELLO A","ALCINI","DAVOLI","MUSTILLI","APPOLLONI","PREGER","FODALE","VINCI"],
+        ["PONZO","CARNEVALI","VINCI","VACCA TORELLI","NESPOLA","MAIORANA","DELL'OMO","CALDAROLA","ANTICI","DAIDONE","MERCURIO","MARI","PERSIANI","SERVELLO S","DI CASTRO","CERCIELLO","DE BELLA","ORLANDI","ALCINI","SERVELLO A","DI MARCO","FODALE","MUSTILLI","CECILIA","FERRINI","APPOLLONI","TORNISELLO"],
+        ["PONZO","PIZZUTI","VINCI","SIMONCELLI","COSTACURTA","SURACE","DE MARCO","ZACCHEI","NESPOLA","IANNITTI","GURRIERI","MARI","PERSIANI","FERRERI","DI CASTRO","CORPOLONGO","CERCIELLO","CARNEVALI","DI MARCO","SERVELLO A","VALENTINI","APPOLLONI","VACCA TORELLI","FERRINI","PIERSANTI","MICALETTI","DAVOLI"],
+        ["PIZZUTI","NESPOLA","CERCIELLO","SIMONCELLI","PONZO","DE MARCO","CALDAROLA","ORLANDI","SERVELLO S","MARI","GURRIERI","MERCURIO","DI CASTRO","ANTICI","DE BELLA","COSTACURTA","CORPOLONGO","FERRERI","DI MARCO","VALENTINI","IANNITTI","DELLA PIETRA","PACE","MICALETTI","PIERSANTI","CECILIA","VACCA TORELLI"],
+        ["MERCURIO","CORPOLONGO","PIZZUTI","NESPOLA","PONZO","COSTACURTA","ZACCHEI","ANTICI","SERVELLO S","PACE","MARI","GURRIERI","DI CASTRO","CALDAROLA","CERCIELLO","DE BELLA","ORLANDI","CARNEVALI","FERRINI","IANNITTI","DI MARCO","PIERSANTI","DELLA PIETRA","MICALETTI","VALENTINI","CECILIA","FERRERI"],
+        // Mercoledì (Ore 1-6)
+        ["PONZO","PIZZUTI","MERCURIO","SIMONCELLI","MAIORANA","ORLANDI","CALDAROLA","DELL'OMO","PERSIANI","MARI","GURRIERI","CORPOLONGO","IANNITTI","COSTACURTA","FERRERI","DE BELLA","DELLA PIETRA","CERCIELLO","SERVELLO A","ALCINI","DI MARCO","VACCA TORELLI","APPOLLONI","PACE","GENTILE","PREGER","FODALE"],
+        ["CORPOLONGO","MERCURIO","NESPOLA","SIMONCELLI","MAIORANA","VACCA TORELLI","CALDAROLA","DELL'OMO","SERVELLO S","MARI","GURRIERI","ORLANDI","CERCIELLO","IANNITTI","DI CASTRO","DE BELLA","DELLA PIETRA","COSTACURTA","SERVELLO A","ALCINI","DI MARCO","PACE","GENTILE","FODALE","MICALETTI","PREGER","APPOLLONI"],
+        ["CERCIELLO","PIZZUTI","DI MARCO","PONZO","VACCA TORELLI","MAIORANA","NESPOLA","CALDAROLA","SERVELLO S","ORLANDI","IANNITTI","GURRIERI","FERRERI","DI CASTRO","COSTACURTA","FODALE","DE BELLA","CARNEVALI","CECCACCIO","APPOLLONI","CECILIA","DELLA PIETRA","SURACE","SERVELLO A","FERRINI","MICALETTI","PACE"],
+        ["PONZO","CECCACCIO","CORPOLONGO","MAIORANA","DE MARCO","FARINA","SURACE","CALDAROLA","DELL'OMO","VALENTINI","MARI","GURRIERI","CESARO'","SERVELLO S","PERSIANI","FERRERI","FODALE","CARNEVALI","ALCINI","FERRINI","CECILIA","DELLA PIETRA","VACCA TORELLI","PREGER","PACE","PIERSANTI","TORNISELLO"],
+        ["DE MARCO","CARNEVALI","PIZZUTI","PONZO","ANTICI","FARINA","DELL'OMO","NESPOLA","SURACE","CECILIA","CORPOLONGO","MARI","DI CASTRO","SERVELLO S","PERSIANI","CESARO'","FERRERI","TORNISELLO","FERRINI","SERVELLO A","CECCACCIO","PIERSANTI","MUSTILLI","VALENTINI","PREGER","MICALETTI","VINCI"],
+        ["PIZZUTI","CARNEVALI","VINCI","VACCA TORELLI","PONZO","NESPOLA","CECCACCIO","CALDAROLA","DE MARCO","DAIDONE","MARI","VALENTINI","PERSIANI","DI CASTRO","ANTICI","TORNISELLO","CESARO'","CORPOLONGO","ALCINI","SERVELLO A","FERRINI","PIERSANTI","MUSTILLI","MICALETTI","CECILIA","PACE","SURACE"],
+        // Giovedì (Ore 1-6)
+        ["PIZZUTI","CORPOLONGO","DI MARCO","PONZO","FARINA","DE MARCO","DELL'OMO","SPINA","CECCACCIO","MARI","PACE","GURRIERI","DI CASTRO","SERVELLO S","CERCIELLO","DE BELLA","DELLA PIETRA","MUSTILLI","IANNITTI","VALENTINI","ALCINI","PIERSANTI","FERRERI","CECILIA","APPOLLONI","PREGER","VINCI"],
+        ["PIZZUTI","CERCIELLO","CECCACCIO","PONZO","FARINA","MAIORANA","SERVELLO S","DE MARCO","DELL'OMO","DAIDONE","MARI","PACE","DI CASTRO","FERRERI","IANNITTI","CORPOLONGO","CESARO'","MUSTILLI","DI MARCO","CECILIA","ALCINI","PIERSANTI","DELLA PIETRA","APPOLLONI","FODALE","PREGER","VINCI"],
+        ["MERCURIO","SPINA","PIZZUTI","DE MARCO","NESPOLA","MAIORANA","ANTICI","ZACCHEI","DELL'OMO","PACE","GURRIERI","MARI","ORLANDI","CALDAROLA","DI CASTRO","DE BELLA","CERCIELLO","FERRERI","APPOLLONI","ALCINI","VALENTINI","DAVOLI","DELLA PIETRA","MICALETTI","PREGER","FERRINI","VINCI"],
+        ["CECCACCIO","MERCURIO","CERCIELLO","SIMONCELLI","VACCA TORELLI","SURACE","CALDAROLA","ZACCHEI","BOLOGNA","CORPOLONGO","GURRIERI","DAIDONE","ANTICI","CESARO'","DE BELLA","CARNEVALI","COSTACURTA","TORNISELLO","VALENTINI","IANNITTI","DI MARCO","FODALE","MUSTILLI","MICALETTI","PREGER","FERRINI","DAVOLI"],
+        ["DAIDONE","CARNEVALI","VINCI","SIMONCELLI","MAIORANA","ANTICI","ZACCHEI","CALDAROLA","NESPOLA","IANNITTI","VALENTINI","MERCURIO","COSTACURTA","ORLANDI","PERSIANI","TORNISELLO","DE BELLA","CESARO'","SERVELLO A","FERRINI","DI MARCO","SURACE","FODALE","MICALETTI","PIERSANTI","APPOLLONI","VACCA TORELLI"],
+        ["DAIDONE","NESPOLA","VINCI","COSTACURTA","SURACE","MAIORANA","ZACCHEI","CALDAROLA","ANTICI","MERCURIO","ORLANDI","IANNITTI","PERSIANI","CERCIELLO","CESARO'","CARNEVALI","DE BELLA","FODALE","DI MARCO","SERVELLO A","APPOLLONI","VACCA TORELLI","MUSTILLI","FERRINI","PIERSANTI","MICALETTI","TORNISELLO"],
+        // Venerdì (Ore 1-6)
+        ["ORLANDI","SPINA","PIZZUTI","MAIORANA","PONZO","VACCA TORELLI","DE MARCO","SURACE","BOLOGNA","DAIDONE","MARI","MERCURIO","CESARO'","COSTACURTA","DI CASTRO","CERCIELLO","DE BELLA","CORPOLONGO","SERVELLO A","CECCACCIO","DI MARCO","FERRERI","DELLA PIETRA","PREGER","VALENTINI","PIERSANTI","TORNISELLO"],
+        ["PONZO","PIZZUTI","MERCURIO","VACCA TORELLI","MAIORANA","COSTACURTA","SURACE","CECCACCIO","DE MARCO","DAIDONE","MARI","CORPOLONGO","PERSIANI","CESARO'","DI CASTRO","ORLANDI","DE BELLA","CERCIELLO","CECILIA","SERVELLO A","DI MARCO","DELLA PIETRA","APPOLLONI","PREGER","PIERSANTI","VALENTINI","TORNISELLO"],
+        ["CORPOLONGO","PIZZUTI","VINCI","PONZO","MAIORANA","FARINA","ORLANDI","SPINA","SERVELLO S","MARI","MERCURIO","DAIDONE","IANNITTI","DI CASTRO","CESARO'","FERRERI","DELLA PIETRA","TORNISELLO","ALCINI","SERVELLO A","DI MARCO","PIERSANTI","VACCA TORELLI","VALENTINI","PACE","PREGER","APPOLLONI"],
+        ["PIZZUTI","DE MARCO","ORLANDI","NESPOLA","COSTACURTA","FARINA","CALDAROLA","ANTICI","DELL'OMO","GURRIERI","CECILIA","DAIDONE","PERSIANI","DI CASTRO","FERRERI","CESARO'","CORPOLONGO","TORNISELLO","CECCACCIO","ALCINI","IANNITTI","DELLA PIETRA","PACE","FERRINI","PIERSANTI","MICALETTI","SURACE"],
+        ["NESPOLA","CECCACCIO","DE MARCO","SURACE","FARINA","MAIORANA","CALDAROLA","DELL'OMO","SERVELLO S","GURRIERI","IANNITTI","MARI","VINCI","ANTICI","PERSIANI","COSTACURTA","FODALE","CARNEVALI","FERRINI","APPOLLONI","ALCINI","PACE","MUSTILLI","MICALETTI","CECILIA","GENTILE","FERRERI"],
+        ["DE MARCO","CARNEVALI","NESPOLA","ANTICI","FARINA","MAIORANA","DELL'OMO","CALDAROLA","SERVELLO S","CECILIA","SPINA","GURRIERI","VINCI","IANNITTI","COSTACURTA","TORNISELLO","FERRERI","MUSTILLI","GENTILE","ALCINI","CECCACCIO","APPOLLONI","SURACE","MICALETTI","FERRINI","FODALE","PACE"]
+    ];
+    const databaseMaterie = [
+        // Lunedì (Ore 1-6)
+        ["LET","ING","STO+GEO","TEC","REL","LET+STO+GEO","LET+STO","MAT","LET+STO","FRA","LET+STO","MUS","FRA","MAT","MOT","ING","MAT","STO+GEO","LET","ING","MOT","REL","MUS","ART","MAT","TEC","ING"],
+        ["ING","REL","STO+GEO","LET+STO","ING","LET+STO+GEO","MOT","LET+STO","MAT","STO+GEO","TEC","MUS","MAT","LET+STO","ING","STO+GEO","TEC","MATX","MOT","LET+STO+GEO","ING","MUS","MATX","REL","GEO","MAT","ART"],
+        ["MUS","FRA","MAT","LET+STO","MOT","MAT","LET+STO","TEC","MAT","STO+GEO","MUS","STO+GEO","MUS","LET+STO","REL","STO+GEO","ING","TEC","MAT","LET+STO+GEO","ING","ING","LET+STO+GEO","MAT","LET+STO","FRA","LET+STO"],
+        ["FRA","LET+STO","MAT","LET+STO","ART","MAT","MUS","MAT","FRA","ING","MOT","FRA","STO+GEO","LET+STO","LET+STO","ART","LET+STO+GEO","MAT","MAT","TEC","LETX","MAT","LETX","TEC","LET+STO","LET+STO","REL"],
+        ["MAT","ART","MOT","FRA","MAT","MOT","TEC","MUS","GEO","MAT","ING","TEC","STO+GEO","FRA","ART","LET","MAT","ING","FRA","MAT","REL","LET+STO","ART","GEO","MAT","LET+STO","MAT"],
+        ["STO+GEO","MAT","ING","ART","MAT","MUS","MATX","FRA","TEC","MOT","FRA","MAT","MOT","ING","LET+STO","MATX","LET+STO+GEO","LET","ART","REL","MAT","LET+STO","MAT","MAT","ART","LET+STO","LET+STO"],
+        // Martedì (Ore 1-6)
+        ["TEC","LET+STO","ART","REL","LET","ING","GEO","MAT","ING","LET","GEO_D","LET","ING","MAT","LET+STO","MAT","LET+STO+GEO","ART","LET","MUS","MAT","FRA","LET+STO+GEO","MAT","MOT","ING","LET+STO"],
+        ["STO+GEO","LET+STO","TEC","MOT","FRA","LET+STO+GEO","MAT","ART","REL","ING","LET+STO","ART","TEC","LET+STO","LET+STO","MAT","LET+STO+GEO","ING","MUS","LET+STO+GEO","MAT","GEO","LET+STO+GEO","MOT","MAT","ART","LET+STO"],
+        ["LET","LETX","LET","ING","MUS","LET+STO+GEO","MAT","LETX","MOT","LET","ING","MAT","LET","LETX","MAT","FRA","LETX","REL","MAT","LET+STO+GEO","LET+STO+GEO","ART","LET+STO+GEO","MUS","ING","MOT","MAT"],
+        ["LET","MAT","LET","MAT","TEC","FRA","ART","ING","MUS","ART","LET+STO","MAT","LET","MUS","MAT","MOT","FRA","LET","STO+GEO","LET+STO+GEO","FRA","MOT","ING","ING","LET+STO","LET+STO","GEO"],
+        ["MAT","MUS","FRA","MAT","STO+GEO","ART","LET+STO","REL","LET+STO","MATX","LET+STO","ING","MATX","MOT","GEO","TEC","MOT","MUS","STO+GEO","FRA","ART","MAT","TEC","LET+STO","LET+STO","MUS","ING"],
+        ["ING","MOT","MAT","MUS","STO+GEO","TEC","ING","MOT","LET+STO","TEC","MAT","LET","MAT","GEO","FRA","LET","REL","LET","ING","ART","LET+STO+GEO","LET+STO","MAT","LET+STO","FRA","MUS","MUS"],
+        // Mercoledì (Ore 1-6)
+        ["LET","MAT","ING","MAT","LET","REL","LET+STO","MAT","GEO","MAT","LET+STO","MOT","ART","TEC","MUS","LET","MAT","FRA","LET","MAT","LET+STO+GEO","ING","MOT","TEC","REL","MAT","ART"],
+        ["MOT","ING","MUS","MAT","LET","ING","LET+STO","MAT","LET+STO","MAT","LET+STO","REL","FRA","ART","MAT","LET","MAT","TEC","LET","MAT","LET+STO+GEO","TEC","REL","ART","GEO","MAT","MOT"],
+        ["FRA","MATX","STO+GEO","LET+STO","ING","LET+STO+GEO","MUS","LET+STO","LET+STO","REL","ART","LET","MUS","MATX","TEC","ART","LET+STO+GEO","LET","TEC","MOT","MUS","MAT","FRA","GEO","ING","LET+STO","TEC"],
+        ["LET","TEC","MOT","GEO","ART","MAT","FRA","LET+STO","MAT","FRA","MAT","LET","ING","LET+STO","LET+STO","MUS","ART","LET","MAT","ING","MUS","MAT","ING","MAT","TEC","GEO","MAT"],
+        ["ART","LET+STO","MAT","LETX","MOT","MAT","MAT","MUS","FRA","MUS","MOT","MAT","MAT","LET+STO","LET+STO","ING","MUS","MAT","ING","LET+STO+GEO","TEC","LETX","LET+STO+GEO","FRA","MAT","LET+STO","LET+STO"],
+        ["MAT","LET+STO","LET","ING","STO+GEO","MUS","TEC","LET+STO","ART","LETX","MAT","FRA","LETX","MAT","MOT","MAT","ING","MOT","MAT","LET+STO+GEO","ING","LET+STO","LET+STO+GEO","LET+STO","MUS","TEC","FRA"],
+        // Giovedì (Ore 1-6)
+        ["MAT","MOT","STO+GEO","LET+STO","MAT","ART","MAT","GEO_C","TEC","MAT","TEC","LET","MAT","LET+STO","FRA","LETX","MAT","STO+GEO","ART","FRA","MAT","LET+STO","MUS","MUS","MOT","MAT","LETX"],
+        ["MAT","FRA","TEC","LET+STO","MAT","LET+STO+GEO","GEO","ART","MAT","LET","MAT","TEC","MAT","MUS","ART","MOT","ING","STO+GEO","STO+GEO","MUS","MATX","LET+STO","MAT","MOT","ART","MATX","LET+STO"],
+        ["ING","GEO","MAT","ART","MUS","LET+STO+GEO","MOT","ING","MATX","TEC","LET+STO","MATX","REL","GEO","MAT","LET","FRA","MUS","MOT","MAT","FRA","GEO","MAT","LET+STO","MAT","ING","LET+T"],
+        ["TEC","ING","FRA","MAT","ING","FRA","LET+STO","ING","ING","MOT","LET+STO","STO+GEO","MOT","ING","GEO","STO+GEO","TEC","MAT","FRA","ART","LET+STO+GEO","ART","LET+STO+GEO","LET+STO","MAT","ING","GEO"],
+        ["STO+GEO","LET+STO","LET","MAT","LET","MOT","ING","LET+STO","MUS","ART","FRA","ING","TEC","REL","LET+STO","MAT","LET+STO+GEO","ING","LETX","ING","LET+STO+GEO","FRA","ART","LETX","LET+STO","MOT","ING"],
+        ["STO+GEO","MUS","LETX","TEC","FRA","LETX","ING","LET+STO","MOT","ING","REL","ART","LET","FRA","ING","STO+GEO","LET+STO+GEO","ART","STO+GEO","LET+STO+GEO","MOT","ING","LET+STO+GEO","ING","LET+STO","LET+STO","MAT"],
+        // Venerdì (Ore 1-6)
+        ["REL","GEO_A","MATX","GEO","STO+GEO","ING","ART","FRA","ING","LET","MAT","ING","ING","TEC","MATX","FRA","LET+STO+GEO","MOT","LET","TEC","LET+STO+GEO","MUS","MAT","MAT","FRA","GEO","MAT"],
+        ["LET","MAT","ING","ING","LETX","TEC","FRA","TEC","ART","LET","MAT","MOT","LET","ING","MAT","REL","LET+STO+GEO","FRA","MUS","LETX","LET+STO+GEO","MAT","MOT","MAT","LETX","FRA","MAT"],
+        ["MOT","MAT","LET","LET+STO","LET","MAT","REL","GEO","LET+STO","MAT","ING","STO+GEO","ART","MAT","ING","MUS","MAT","MAT","MAT","LET+STO+GEO","LET+STO+GEO","LET+STO","ING","FRA","TEC","MAT","MOT"],
+        ["MATX","ART","REL","MUS","TEC","MAT","LET+STO","MOT","MAT","STO+GEO","MUS","STO+GEO","LET","MAT","MUS","ING","MOT","MAT","TEC","MAT","ART","MATX","TEC","ING","LET+STO","LET+STO","FRA"],
+        ["MUS","TEC","ART","FRA","MAT","LET+STO+GEO","LET+STO","MAT","LET+STO","STO+GEO","ART","MAT","STO+GEO","MOT","LET+STO","TEC","ART","LET","ING","MOT","MAT","TEC","LET+STO+GEO","LET+STO","MUS","REL","MUS"],
+        ["ART","LET+STO","MUS","MOT","MAT","LET+STO+GEO","MAT","LET+STO","LETX","MUS","GEO","LETX","STO+GEO","ART","TEC","MAT","MUS","STO+GEO","REL","MAT","TEC","MOT","FRA","LET+STO","ING","ART","TEC"]
+    ];
+    const giorni = ["Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì"];
+    
+    function decodificaMateria(rawMat) {
+        let h = rawMat.trim().toUpperCase();
+        if (h.endsWith("X") && h.length > 3) h = h.slice(0, -1);
+        if (h.includes("_")) h = h.split("_")[0];
+        
+        if (h === "LET+STO+GEO") return { nome: "Let/Sto/Geo", cls: "color-letstogeo" };
+        if (h === "LET+STO" || h === "LET") return { nome: "Lettere/Storia", cls: "color-letterestoria" };
+        if (h === "GEO") return { nome: "Geografia", cls: "color-geografia" };
+        if (h === "ING") return { nome: "Inglese", cls: "color-inglese" };
+        if (h === "MAT" || h === "MATX") return { nome: "Matematica", cls: "color-matematica" };
+        if (h === "STO+GEO") return { nome: "Storia e Geo.", cls: "color-storiageo" };
+        if (h === "TEC") return { nome: "Tecnologia", cls: "color-tecnologia" };
+        if (h === "REL") return { nome: "Religione", cls: "color-religione" };
+        if (h === "MUS") return { nome: "Musica", cls: "color-musica" };
+        if (h === "FRA") return { nome: "Francese", cls: "color-francese" };
+        if (h === "MOT") return { nome: "Ed. Fisica", cls: "color-fisica" };
+        if (h === "ART") return { nome: "Arte e Imm.", cls: "color-arte" };
+        return { nome: h, cls: "" };
+    }
+
+    const select = document.getElementById("classeSelect");
+    classiIstituito.forEach(c => {
+        let opt = document.createElement("option"); opt.value = c; opt.textContent = c; select.appendChild(opt);
+    });
+
+    function navigaClasse(direzione) {
+        const classeCorrente = select.value; let nuovoIndice = 0;
+        if (classeCorrente) { let idxAttuale = classiIstituito.indexOf(classeCorrente); nuovoIndice = idxAttuale + direzione; }
+        else { nuovoIndice = direzione > 0 ? 0 : classiIstituito.length - 1; }
+        if (nuovoIndice >= 0 && nuovoIndice < classiIstituito.length) { select.value = classiIstituito[nuovoIndice]; mostraOrario(); }
+    }
+
+    function aggiornaStatoPulsanti() {
+        const val = select.value; const btnPrev = document.getElementById("btnPrev"); const btnNext = document.getElementById("btnNext"); const btnPrint = document.getElementById("btnPrint");
+        if (!val) { btnPrev.disabled = false; btnNext.disabled = false; btnPrint.style.display = "none"; return; }
+        let idx = classiIstituito.indexOf(val); btnPrev.disabled = (idx === 0); btnNext.disabled = (idx === classiIstituito.length - 1);
+        btnPrint.style.display = "inline-block";
+    }
+
+    function mostraOrario() {
+        const classe = select.value; const tabella = document.getElementById("tabellaOrario"); const corpo = document.getElementById("corpoTabella"); const msg = document.getElementById("messaggioIniziale"); const titolo = document.getElementById("titoloPagina");
+        corpo.innerHTML = ""; aggiornaStatoPulsanti();
+        if (!classe) { tabella.style.display = "none"; msg.style.display = "block"; titolo.textContent = "Orario Scolastico"; return; }
+        msg.style.display = "none"; tabella.style.display = "table"; titolo.textContent = "Orario Scolastico - Classe " + classe;
+        const colIdx = classiIstituito.indexOf(classe);
+        
+        for (let ora = 0; ora < 6; ora++) {
+            let tr = document.createElement("tr");
+            let tdOra = document.createElement("td"); tdOra.style.fontWeight = "bold"; tdOra.textContent = (ora + 1) + "° Ora"; tr.appendChild(tdOra);
+            
+            giorni.forEach((giorno, gIdx) => {
+                let td = document.createElement("td"); let rowIdx = (gIdx * 6) + ora;
+                let doc = databaseDocenti[rowIdx] ? databaseDocenti[rowIdx][colIdx] : "-";
+                let mat = databaseMaterie[rowIdx] ? databaseMaterie[rowIdx][colIdx] : "-";
+                doc = doc ? doc.trim() : "-"; mat = mat ? mat.trim() : "-";
+                
+                if (doc.startsWith("ZZ") || doc.startsWith("ZZT") || doc === "-" || doc === "" || mat === "L" || doc.length > 20) { 
+                    td.textContent = "-"; 
+                } else {
+                    let infoMateria = decodificaMateria(mat);
+                    if (infoMateria.nome === doc) infoMateria.nome = "Lezione";
+                    if (infoMateria.cls) td.classList.add(infoMateria.cls);
+                    
+                    td.innerHTML = `<div class="cell-content">
+                        <div class="materia">${infoMateria.nome}</div>
+                        <div class="docente">${doc}</div>
+                    </div>`;
+                }
+                tr.appendChild(td);
+            });
+            corpo.appendChild(tr);
+        }
+    }
+    aggiornaStatoPulsanti();
+</script>
+</body>
+</html>
